@@ -60,8 +60,12 @@ const posts = [
 
 const container = document.getElementById('container');
 
+// cambio formato data
+convertDate();
+
 // stampo contenuto
 printPosts();
+
 
 
 // funzione per stampare il contenuto
@@ -104,4 +108,12 @@ function printPosts(){
     })
 
     container.innerHTML = output;
+}
+
+// creo funzione per convertire la data
+
+function convertDate (){
+    posts.forEach(post =>{
+        post.created = post.created.split("-").reverse().join("/")
+    })
 }
