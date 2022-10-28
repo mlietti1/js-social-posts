@@ -60,46 +60,75 @@ const posts = [
 
 const container = document.getElementById('container');
 
-// cambio formato data
-convertDate();
+const userLikes = [1, 3, 4];
 
-// stampo contenuto
+// container.innerHTML = '';
+
+
 printPosts();
 
+handleClick();
 
+// funzione per btn cliccato 
+
+
+function handleClick (){
+    document.querySelectorAll('.js-like-button').forEach(button =>{
+        button.addEventListener('click', function(e){
+            e.preventDefault();
+            const postId = this.getAttribute('data-postid');
+            
+            const counterDisplay = document.getElementById('like-counter-' + postId);
+            let likes = parseInt(counterDisplay.innerText);
+
+            if (this.classList.contains('like-button--liked')){
+                this.classList.remove('like-button--liked')
+                counterDisplay.innerText = --likes;
+            }else{
+                this.classList.add('like-button--liked');
+                counterDisplay.innerText = ++likes;
+            }
+
+            const likedPost = posts.filter(post => post.id == postId)
+            likedPost[0].likes = likes;
+        })
+    })
+    
+}
 
 // funzione per stampare il contenuto
 
 function printPosts(){
     let output = '';
     posts.forEach(post =>{
+        const {id, author, content, media, likes, created } = post
         output += `
         <div class="post">
             <div class="post__header">
                 <div class="post-meta">                    
                     <div class="post-meta__icon">
-                        <img class="profile-pic" src="${post.author.image}" alt="${post.author.name}">                    
+                        ${author.image ? getPropic(author) : getDefaultPropic(author)}              
                     </div>
                     <div class="post-meta__data">
-                        <div class="post-meta__author">${post.author.name}</div>
-                        <div class="post-meta__time">${post.created}</div>
+                        <div class="post-meta__author">${author.name}</div>
+                        <div class="post-meta__time">${convertDate(created)}</div>
                     </div>                    
                 </div>
             </div>
-            <div class="post__text">Placeat libero ipsa nobis ipsum quibusdam quas harum ut. Distinctio minima iusto. Ad ad maiores et sint voluptate recusandae architecto. Et nihil ullam aut alias.</div>
+            <div class="post__text">${content}</div>
             <div class="post__image">
-                <img src="${post.media}" alt="">
+                <img src="${media}" alt="">
             </div>
             <div class="post__footer">
                 <div class="likes js-likes">
                     <div class="likes__cta">
-                        <a class="like-button  js-like-button" href="#" data-postid="${post.id}">
+                        <a class="like-button js-like-button ${isPostLiked(id) ? 'like-button--liked' : ''}" href="#" data-postid="${id}">
                             <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
                             <span class="like-button__label">Mi Piace</span>
                         </a>
                     </div>
                     <div class="likes__counter">
-                        Piace a <b id="like-counter-1" class="js-likes-counter">${post.likes}</b> persone
+                        Piace a <b id="like-counter-${id}" class="js-likes-counter">${likes}</b> persone
                     </div>
                 </div> 
             </div>            
@@ -110,10 +139,37 @@ function printPosts(){
     container.innerHTML = output;
 }
 
+function isPostLiked(id){
+    return userLikes.includes(id);
+}
+
+function getPropic(author){
+    const {image} = author;
+    return `<img class="profile-pic" src="${image}" alt="">`;
+}
+
+function getDefaultPropic (author){
+    const {name} = author;
+
+    let initials = '';
+
+    const nameSplit = name.split(' ');
+
+    nameSplit.forEach(letter => {
+        initials += letter[0];
+    })
+
+    return `
+    <div class="profile-pic-default">
+        <span>${initials}</span>
+    </div>
+    `
+}
+
 // creo funzione per convertire la data
 
-function convertDate (){
-    posts.forEach(post =>{
-        post.created = post.created.split("-").reverse().join("/")
-    })
+function convertDate (date){
+
+    return date.split("-").reverse().join("/")
+
 }
